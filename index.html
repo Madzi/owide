@@ -1,0 +1,42 @@
+<!DOCUMENT html>
+<html>
+    <head>
+        <link rel="stylesheet" href="lib/font-awesome.min.css">
+        <link rel="stylesheet" href="lib/ink.min.css">
+        <link rel="stylesheet" href="lib/codemirror.css">
+        <link rel="stylesheet" href="lib/eclipse.css">
+        <link rel="stylesheet" href="lib/monokai.css">
+        <link rel="stylesheet" href="lib/owide.css">
+    </head>
+    <body>
+        <nav class="ink-navigation">
+            <ul class="menu horizontal grey">
+                <li>
+                    <a href="#">File</a>
+                    <ul class="submenu">
+                        <li><a href="#">Open</a></li>
+                        <li><a href="#">Save</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <div class="ink-grid">
+            <div class="column-group">
+                <div class="all-25"></div>
+                <div class="all-75">
+                    <textarea id="code-area"></textarea>
+                </div>
+            </div>
+        </div>
+        <div>
+            <table class="ink-table">
+                <tbody>
+                    <tr/>
+                </tbody>
+            </table>
+        </div>
+        <script type="text/javascript" src="lib/codemirror.js"></script>
+        <script type="text/javascript" src="lib/sublime.js"></script>
+        <script type="text/javascript" src="lib/owide.js"></script>
+    </body>
+</html>
