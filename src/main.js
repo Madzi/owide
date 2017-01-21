@@ -30,7 +30,7 @@ btnNew.addEventListener('click', (e) => {
 
 btnOpen.addEventListener('click', (e) => {
     fileLoader.load(function (data) {
-        let content = data.content.byteLength % 2 == 1 ? new Uint8Array(data.content) : new UInt16Array(data.content);
+        let content = data.content.byteLength % 2 == 1 ? new Uint8Array(data.content) : new Uint16Array(data.content);
         fileName.innerHTML = data.name;
         codeEditor.setValue((new TextDecoder('utf-8')).decode(data.content));
     });

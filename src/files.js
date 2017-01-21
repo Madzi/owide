@@ -1,3 +1,10 @@
+class TextFileStream extends FileStream {
+    load (type, buf, size = 1)
+    save (type, buf) {
+        let 
+    }
+}
+
 export class FileLoader {
     constructor () {
         this.fileInput = document.createElement('input');
@@ -7,6 +14,8 @@ export class FileLoader {
         this.fileInput.addEventListener('change', (ev) => {
             let file = this.fileInput.files[0],
                 reader = new FileReader();
+            console.log(file.name);
+            console.log(this.extension(file.name));
             reader.addEventListener('load', (e) => {
                 if (this.callback) {
                     this.callback({
@@ -31,6 +40,7 @@ export class FileLoader {
         this.fileOutput.click();
     }
     extension (fileName) {
-        return (parts = fileName.split('/').pop().split('.')).length > 1 ? parts.pop() : "";
+        let parts = fileName.split('/').pop().split('.');
+        return parts.length > 1 ? parts.pop() : "";
     }
 }
