@@ -1,7 +1,11 @@
+var webpack = require('webpack');
+var path = require('path');
+
 module.exports = {
-    entry: __dirname + '\\src\\main.js',
+    context: path.join(__dirname, 'src'),
+    entry: './main.js',
     output: {
-        path: __dirname + '\\lib\\',
+        path: path.join(__dirname, 'lib'),
         filename: 'owide.js'
     },
     module: {

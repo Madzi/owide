@@ -1,87 +1,46 @@
-// class Node {
-//     static one (sel) { return document.querySelector(sel); }
-//     static all (sel) { return document.querySelectorAll(sel); }
-// }
+import {FileLoader} from './files';
 
-// let codeArea = Node.one('#code-area'),
-//     codeEditor = CodeMirror.fromTextArea(codeArea, {
-//         lineNumbers: true
-//     });
+class Node {
+    static one (sel) { return document.querySelector(sel); }
+    static all (sel) { return document.querySelectorAll(sel); }
+}
 
-webix.ui({
-    view: 'layout',
-    rows: [
-        {
-            type: 'clean',
-            cols: [
-                {
-                    view: 'menu',
-                    data: [
-                        {
-                            id: 1,
-                            value: 'File',
-                            submenu: ['New', 'Open', 'Save']
-                        }
-                    ],
-                    css: 'blue'
-                }
-            ]
-        },
-        {
-            cols: [
-                {
-                    id: 'f',
-                    view: 'tree',
-                    data: [
-                        { value: 'f01' },
-                        { value: 'f02' },
-                        { value: 'f03' },
-                        { value: 'f04' },
-                        { value: 'f05' },
-                        { value: 'f06' },
-                        { value: 'f07' },
-                        { value: 'f08' },
-                        { value: 'f09' },
-                        { value: 'f10' },
-                        { value: 'f11' },
-                        { value: 'f12' },
-                        { value: 'f13' },
-                        { value: 'f14' },
-                        { value: 'f15' },
-                        { value: 'f16' },
-                        { value: 'f17' },
-                        { value: 'f18' },
-                        { value: 'f19' },
-                        { value: 'f20' },
-                        { value: 'f21' }
-                    ],
-                    width: 200
-                },
-                {
-                    view: 'resizer'
-                },
-                {
-                    id: 'e'
-                }
-            ]
-        },
-        {
-            view: 'resizer'
-        },
-        {
-            id: 'c',
-            view: 'list',
-            data: [
-                'Line - 01',
-                'Line - 02',
-                'Line - 03',
-                'Line - 04',
-                'Line - 05',
-                'Line - 06',
-                'Line - 07',
-                'Line - 08'
-            ],
-            height: 100
-        }
-    ]
+let btnNew = Node.one('#btn-new'),
+    btnOpen = Node.one('#btn-open'),
+    btnSave = Node.one('#btn-save'),
+    fileName = Node.one('#file-name'),
+    fileLoader = new FileLoader(),
+    codeArea = Node.one('#code-area'),
+    codeEditor = CodeMirror.fromTextArea(codeArea, {
+        lineNumbers: true
+    });
+
+let resetEditor = function () {
+    codeEditor.setValue('');
+    codeEditor.clearHistory();
+    fileName.innerHTML = '';
+    //codeEditor.clearGutter("ID");
+};
+
+btnNew.addEventListener('click', (e) => {
+    resetEditor();
+    e.stopPropagation();
+    e.preventDefault();
+});
+
+btnOpen.addEventListener('click', (e) => {
+    fileLoader.load(function (data) {
+        let content = data.content.byteLength % 2 == 1 ? new Uint8Array(data.content) : new UInt16Array(data.content);
+        fileName.innerHTML = data.name;
+        codeEditor.setValue((new TextDecoder('utf-8')).decode(data.content));
+    });
+    e.stopPropagation();
+    e.preventDefault();
+});
+
+btnSave.addEventListener('click', (e) => {
+    fileLoader.save(fileName.innerHTML, codeEditor.getValue());
+    console.log('TOOLS:SAVE');
+    e.stopPropagation();
+    e.preventDefault();
 });
