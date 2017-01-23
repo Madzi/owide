@@ -1,6 +1,7 @@
 export let FileHelper = (function () {
     let nOpen = document.createElement('input'),
         nSave = document.createElement('a'),
+        knownExt = {},
         coders = {},
         oCallback = function (ideFile) {},
         register = function (type, encoder, decoder) {
@@ -21,7 +22,7 @@ export let FileHelper = (function () {
             for (let i = 0, len = bufView.length; i < len; ++i) {
                 strBuf.push(String.fromCharCode(bufView[i]));
             }
-            return strBuf.join();
+            return strBuf.join('');
         },
         decode16 = function (buf) {
             let bufView = new Uint16Array(buf);
@@ -29,7 +30,7 @@ export let FileHelper = (function () {
             for (let i = 0, len = bufView.length; i < len; ++i) {
                 strBuf.push(String.fromCharCode(bufView[i]));
             }
-            return strBuf.join();
+            return strBuf.join('');
         },
         decode32 = function (buf) {
             let bufView = new Uint32Array(buf);
@@ -37,7 +38,7 @@ export let FileHelper = (function () {
             for (let i = 0, len = bufView.length; i < len; ++i) {
                 strBuf.push(String.fromCharCode(bufView[i]));
             }
-            return strBuf.join();
+            return strBuf.join('');
         },
         encode8 = function (str) {
             let buf = new ArrayBuffer(str.length);
@@ -62,6 +63,11 @@ export let FileHelper = (function () {
                 bufView[i] = str.charCodeAt(i);
             }
             return buf;
+        },
+        fileExtension = function (fileName) {
+            let parts = (fileName||'').split('/'),
+                last = parts.length > 0 ? parts.pop() : '';
+            return last.indexOf('.') > 0 ? last.split('.').pop() : last;
         };
 
     nOpen.style.display = 'none';
@@ -73,11 +79,13 @@ export let FileHelper = (function () {
             reader = new FileReader();
         reader.addEventListener('load', e => {
             console.log(file);
+            let type = file.type.length > 0 ? file.type : knownExt[fileExtension(file.name)]||'plain/text';
+            console.log(type);
             oCallback(new IdeFile({
                 name: file.name,
                 size: file.size,
-                type: file.type,
-                content: forMIME(file.type).decode(e.target.result)
+                type: type,
+                content: forMIME(type).decode(e.target.result)
             }));
         });
         reader.readAsArrayBuffer(file);
@@ -87,6 +95,8 @@ export let FileHelper = (function () {
     document.querySelector('body').appendChild(nSave);
 
     register('plain/text', encode8, decode8);
+
+    ['txt', 'csv'].forEach(ext => knownExt[ext] = 'plain/text');
 
     return {
         open: function (callback) {
