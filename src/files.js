@@ -16,52 +16,40 @@ export let FileHelper = (function () {
             console.log(type);
             return coders[(type||'').toLowerCase()] || coders['plain/text'];
         },
-        decode8 = function (buf) {
-            let bufView = new Uint8Array(buf);
+        _decode = function (bufView) {
             let strBuf = [];
             for (let i = 0, len = bufView.length; i < len; ++i) {
                 strBuf.push(String.fromCharCode(bufView[i]));
             }
             return strBuf.join('');
+        },
+        decode8 = function (buf) {
+            return _decode(new Uint8Array(buf));
         },
         decode16 = function (buf) {
-            let bufView = new Uint16Array(buf);
-            let strBuf = [];
-            for (let i = 0, len = bufView.length; i < len; ++i) {
-                strBuf.push(String.fromCharCode(bufView[i]));
-            }
-            return strBuf.join('');
+            return _decode(new Uint16Array(buf));
         },
         decode32 = function (buf) {
-            let bufView = new Uint32Array(buf);
-            let strBuf = [];
-            for (let i = 0, len = bufView.length; i < len; ++i) {
-                strBuf.push(String.fromCharCode(bufView[i]));
-            }
-            return strBuf.join('');
+            return _decode(new Uint32Array(buf));
         },
-        encode8 = function (str) {
-            let buf = new ArrayBuffer(str.length);
-            let bufView = new Uint8Array(buf);
+        _encode = function (str, bufView) {
             for (let i = 0, len = str.length; i < len; ++i) {
                 bufView[i] = str.charCodeAt(i);
             }
+        },
+        encode8 = function (str) {
+            let buf = new ArrayBuffer(str.length);
+            _encode(str, new Uint8Array(buf));
             return buf;
         },
         encode16 = function (str) {
             let buf = new ArrayBuffer(str.length * 2);
-            let bufView = new Uint8Array(buf);
-            for (let i = 0, len = str.length; i < len; ++i) {
-                bufView[i] = str.charCodeAt(i);
-            }
+            _encode(str, new Uint16Array(buf));
             return buf;
         },
         encode32 = function (str) {
             let buf = new ArrayBuffer(str.length * 4);
-            let bufView = new Uint8Array(buf);
-            for (let i = 0, len = str.length; i < len; ++i) {
-                bufView[i] = str.charCodeAt(i);
-            }
+            _encode(str, new Uint32Array(buf));
             return buf;
         },
         fileExtension = function (fileName) {
