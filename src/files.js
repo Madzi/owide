@@ -111,4 +111,3 @@ export class IdeFile {
         this.content = o.content || '';
     }
 }
-

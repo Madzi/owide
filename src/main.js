@@ -1,5 +1,21 @@
 import {FileHelper, IdeFile} from './files';
 
+let encLine = function (line) {},
+    decLine = function (line) {},
+    postLoader = function (content) {
+        let pwd,
+            idx = 0,
+            result = [],
+            lines = content.split('\n');
+        if (lines[idx++] == `${HEADER}`) {
+            result.push(`@editor(${lines[idx++]})`);
+            pwd = 
+        } else {
+            result = lines;
+        }
+        return result.join('\n');
+    };
+
 class Node {
     static one (sel) { return document.querySelector(sel); }
     static all (sel) { return document.querySelectorAll(sel); }
@@ -31,6 +47,7 @@ btnNew.addEventListener('click', (e) => {
 btnOpen.addEventListener('click', (e) => {
     FileHelper.open(function (ideFile) {
         fileName.innerHTML = ideFile.name;
+        // check file type and decode
         codeEditor.setValue(ideFile.content);
     });
     e.stopPropagation();
@@ -39,6 +56,7 @@ btnOpen.addEventListener('click', (e) => {
 
 btnSave.addEventListener('click', (e) => {
     theFile.content = codeEditor.getValue();
+    // check file type and encode
     FileHelper.save(theFile);
     e.stopPropagation();
     e.preventDefault();
@@ -59,3 +77,5 @@ let words = function (str) {
 // });
 
 // CodeMirror.defineMode(MODE_NAME, function (config, parserConfig) {});
+
+/*  */
