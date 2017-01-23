@@ -1,4 +1,4 @@
-import {FileLoader} from './files';
+import {FileHelper, IdeFile} from './files';
 
 class Node {
     static one (sel) { return document.querySelector(sel); }
@@ -9,8 +9,8 @@ let btnNew = Node.one('#btn-new'),
     btnOpen = Node.one('#btn-open'),
     btnSave = Node.one('#btn-save'),
     fileName = Node.one('#file-name'),
-    fileLoader = new FileLoader(),
     codeArea = Node.one('#code-area'),
+    theFile = new IdeFile(),
     codeEditor = CodeMirror.fromTextArea(codeArea, {
         lineNumbers: true
     });
@@ -29,18 +29,33 @@ btnNew.addEventListener('click', (e) => {
 });
 
 btnOpen.addEventListener('click', (e) => {
-    fileLoader.load(function (data) {
-        let content = data.content.byteLength % 2 == 1 ? new Uint8Array(data.content) : new Uint16Array(data.content);
-        fileName.innerHTML = data.name;
-        codeEditor.setValue((new TextDecoder('utf-8')).decode(data.content));
+    FileHelper.open(function (ideFile) {
+        fileName.innerHTML = ideFile.name;
+        codeEditor.setValue(ideFile.content);
     });
     e.stopPropagation();
     e.preventDefault();
 });
 
 btnSave.addEventListener('click', (e) => {
-    fileLoader.save(fileName.innerHTML, codeEditor.getValue());
-    console.log('TOOLS:SAVE');
+    theFile.content = codeEditor.getValue();
+    FileHelper.save(theFile);
     e.stopPropagation();
     e.preventDefault();
 });
+
+let words = function (str) {
+    let o = {}, war = str.split(' ') || [];
+    (str.split(' ')||[]).forEach(w => o[w] = !!1);
+    return o;
+};
+
+// CodeMirror.defineMIME(`text/x-${MODE_NAME}`, {
+//     name: MODE_NAME,
+//     keywords: words(''),
+//     blockKeyworsd: words(''),
+//     builtin: words(''),
+//     atoms: words('')
+// });
+
+// CodeMirror.defineMode(MODE_NAME, function (config, parserConfig) {});
