@@ -20,19 +20,27 @@ export const KEYWORDS = 'ACT ADDLIB ADDOBJ ADDQST AND ARRCOMP ARRPOS ARRSIZE'
         + ' JUMP'
         + ' KILLALL KILLOBJ KILLQST KILLVAR'
         + ' LCASE LCOLOR LEN LET LOC'
-        + ' $MAINTXT MAX MENU MID MIN MOD MSECSCOUNT MSG'
-        + ' NL *NL NO NOSAVE'
-        + ' OBJ $ONACTSEL $ONGLOAD $ONGSAVE $ONNEWLOC $ONOBJADD $ONOBJDEL $ONOBJSEL OPENGAME OPENQST OR'
+        + ' $MAINTXT MAX MENU MID MIN MSECSCOUNT MSG'
+        + ' NL *NL NOSAVE'
+        + ' $ONACTSEL $ONGLOAD $ONGSAVE $ONNEWLOC $ONOBJADD $ONOBJDEL $ONOBJSEL OPENGAME OPENQST'
         + ' P *P PL *PL PLAY'
         + ' QSPVER'
         + ' RAND REFINT REPLACE RGB RND'
-        + ' SAVEGAME SELACT SELOBJ SET SETTIMER SHOWACTS SHOWINPUT SHOWOBJS SHOWSTAT $STATTXT STR STRCOMP STRFIND STRPOS TRIM UCASE UNSEL UNSELECT USEHTML $USERCOM USER_TEXT USRTXT VAL VIEW WAIT'
+        + ' SAVEGAME SELACT SELOBJ SET SETTIMER SHOWACTS SHOWINPUT SHOWOBJS SHOWSTAT $STATTXT STR STRCOMP STRFIND STRPOS'
+        + ' TRIM'
+        + ' UCASE UNSEL UNSELECT USEHTML $USERCOM USER_TEXT USRTXT'
+        + ' VAL VIEW'
+        + ' WAIT'
         + ' XGOTO XGT';
+
+const OPER = 'MOD NO OBJ OR';
 
 export const QMIME = `application/x-${QNAME}`;
 
 export let QCONF = {
 };
+
+
 
 export let QMODE = function (config, parserConfig) {
     return {
@@ -43,7 +51,10 @@ export let QMODE = function (config, parserConfig) {
             };
         },
         token: function (stream, state) {
-            stream.next();
+            let ch = stream.next();
+            if (/\s/.test(ch)) {
+                return null;
+            }
             return 'string';
         }
 //        indent: function (state, textAfter) {}
@@ -81,10 +92,10 @@ export let QFilter = (function () {
                 if (pwd == pwd) {
                     let nLoc = parseInt(_dec(lines[idx++]), 10);
                     while (nLoc > 0) {
-                        buf.push(`@loc(${_dec(lines[idx++])}){${_dec(lines[idx++])}}{${_dec(lines[idx++])}}`);
+                        buf.push(`@location(${_dec(lines[idx++])}){${_dec(lines[idx++])}}{${_dec(lines[idx++])}}`);
                         let nAct = parseInt(_dec(lines[idx++]), 10);
                         while (nAct > 0) {
-                            buf.push(`@act[${_dec(lines[idx++])}](${_dec(lines[idx++])}){${_dec(lines[idx++])}}`);
+                            buf.push(`@action[${_dec(lines[idx++])}](${_dec(lines[idx++])}){${_dec(lines[idx++])}}`);
                             nAct--;
                         }
                         nLoc--;

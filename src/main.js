@@ -13,6 +13,8 @@ let btnNew = Node.one('#btn-new'),
     codeArea = Node.one('#code-area'),
     theFile = new IdeFile(),
     codeEditor = CodeMirror.fromTextArea(codeArea, {
+        theme: 'eclipse',
+        identUnit: 4,
         lineNumbers: true,
         lineWrapping: true
     });
