@@ -1,10 +1,21 @@
+import {QMIME, QFilter} from './qcode';
+
+const PLAIN_TEXT = 'plain/text';
+const APP_QSP = QMIME;
+
 export let FileHelper = (function () {
     let nOpen = document.createElement('input'),
         nSave = document.createElement('a'),
         knownExt = {},
         coders = {},
+        filters = {
+            PLAIN_TEXT: {
+                encode: function (str) { return str; },
+                decode: function (str) { return str; }
+            }
+        },
         oCallback = function (ideFile) {},
-        register = function (type, encoder, decoder) {
+        registerCoder = function (type, encoder, decoder) {
             if (typeof type == 'string') {
                 coders[type.toLowerCase()] = {
                     encode: encoder,
@@ -12,9 +23,20 @@ export let FileHelper = (function () {
                 };
             }
         },
-        forMIME = function (type = 'plain/text') {
+        registerFilter = function (type, encoder, decoder) {
+            if (typeof type == 'string') {
+                filters[type.toLowerCase()] = {
+                    encode: encoder,
+                    decode: decoder
+                };
+            }
+        },
+        forMIME = function (type = PLAIN_TEXT) {
             console.log(type);
-            return coders[(type||'').toLowerCase()] || coders['plain/text'];
+            return coders[(type||'').toLowerCase()] || coders[PLAIN_TEXT];
+        },
+        filterMIME = function (type = PLAIN_TEXT) {
+            return filters[(type||'').toLowerCase()] || filter[PLAIN_TEXT];
         },
         _decode = function (bufView) {
             let strBuf = [];
@@ -73,7 +95,7 @@ export let FileHelper = (function () {
                 name: file.name,
                 size: file.size,
                 type: type,
-                content: forMIME(type).decode(e.target.result)
+                content: filters[type].decode(forMIME(type).decode(e.target.result))
             }));
         });
         reader.readAsArrayBuffer(file);
@@ -82,9 +104,12 @@ export let FileHelper = (function () {
     document.querySelector('body').appendChild(nOpen);
     document.querySelector('body').appendChild(nSave);
 
-    register('plain/text', encode8, decode8);
+    registerCoder(PLAIN_TEXT, encode8, decode8);
+    registerCoder(APP_QSP, encode16, decode16);
+    registerFilter(APP_QSP, QFilter.encode, QFilter.decode);
 
-    ['txt', 'csv'].forEach(ext => knownExt[ext] = 'plain/text');
+    ['txt', 'csv'].forEach(ext => knownExt[ext] = PLAIN_TEXT);
+    knownExt['qsp'] = APP_QSP;
 
     return {
         open: function (callback) {

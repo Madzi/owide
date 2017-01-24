@@ -1,20 +1,5 @@
 import {FileHelper, IdeFile} from './files';
-
-let encLine = function (line) {},
-    decLine = function (line) {},
-    postLoader = function (content) {
-        let pwd,
-            idx = 0,
-            result = [],
-            lines = content.split('\n');
-        if (lines[idx++] == `${HEADER}`) {
-            result.push(`@editor(${lines[idx++]})`);
-            pwd = 
-        } else {
-            result = lines;
-        }
-        return result.join('\n');
-    };
+import {QFilter, QNAME, QMIME, QMODE, QHINT, QCONF} from './qcode';
 
 class Node {
     static one (sel) { return document.querySelector(sel); }
@@ -28,7 +13,8 @@ let btnNew = Node.one('#btn-new'),
     codeArea = Node.one('#code-area'),
     theFile = new IdeFile(),
     codeEditor = CodeMirror.fromTextArea(codeArea, {
-        lineNumbers: true
+        lineNumbers: true,
+        lineWrapping: true
     });
 
 let resetEditor = function () {
@@ -38,13 +24,13 @@ let resetEditor = function () {
     //codeEditor.clearGutter("ID");
 };
 
-btnNew.addEventListener('click', (e) => {
+btnNew.addEventListener('click', e => {
     resetEditor();
     e.stopPropagation();
     e.preventDefault();
 });
 
-btnOpen.addEventListener('click', (e) => {
+btnOpen.addEventListener('click', e => {
     FileHelper.open(function (ideFile) {
         fileName.innerHTML = ideFile.name;
         // check file type and decode
@@ -54,7 +40,7 @@ btnOpen.addEventListener('click', (e) => {
     e.preventDefault();
 });
 
-btnSave.addEventListener('click', (e) => {
+btnSave.addEventListener('click', e => {
     theFile.content = codeEditor.getValue();
     // check file type and encode
     FileHelper.save(theFile);
@@ -62,20 +48,6 @@ btnSave.addEventListener('click', (e) => {
     e.preventDefault();
 });
 
-let words = function (str) {
-    let o = {}, war = str.split(' ') || [];
-    (str.split(' ')||[]).forEach(w => o[w] = !!1);
-    return o;
-};
-
-// CodeMirror.defineMIME(`text/x-${MODE_NAME}`, {
-//     name: MODE_NAME,
-//     keywords: words(''),
-//     blockKeyworsd: words(''),
-//     builtin: words(''),
-//     atoms: words('')
-// });
-
-// CodeMirror.defineMode(MODE_NAME, function (config, parserConfig) {});
-
-/*  */
+CodeMirror.defineMIME(QMIME, QCONF);
+CodeMirror.defineMode(QNAME, QMODE);
+CodeMirror.registerHelper('hintWords', QMIME, QHINT);
