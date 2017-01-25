@@ -1,0 +1,1 @@
+import LangServ from './lang-serv';

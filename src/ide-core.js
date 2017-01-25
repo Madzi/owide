@@ -1,3 +1,5 @@
+import IdeFile from './ide-file';
+
 let _encode = function (str, bufView) {
         for (let i = 0, len = str.length; i < len; ++i) {
             bufView[i] = str.charCodeAt(i);
@@ -29,15 +31,6 @@ let _encode = function (str, bufView) {
     _decode16 = function (buf) { return _decode(new Uint16Array(buf)); },
     _decode32 = function (buf) { return _decode(new Uint32Array(buf)); };
 
-export class IdeFile {
-    constructor (o) {
-        this.name = o.name || 'noname.txt';
-        this.type = o.type || 'plain/text';
-        this.size = o.size || 0;
-        this.content = o.content || '';
-    }
-}
-
 export class IdeCore {
     constructor () {
         this.file = new IdeFile();
@@ -58,6 +51,9 @@ export class IdeCore {
                 let file = files[i],
                     reader = new FileReader();
                 reader.addEventListener('load', e => {
+                });
+                reader.addEventListener('error', e => {
+                    alert(`Unable load ${file.name}`);
                 });
                 reader.readAsArrayBuffer(file);
             }
