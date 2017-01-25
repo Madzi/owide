@@ -1,1 +1,5 @@
-import LangServ from './lang-serv';
+import LangServer from './lang-serv';
+
+export class LangServerQsp extends LangServer {
+    constructor () {}
+}

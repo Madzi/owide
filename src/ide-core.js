@@ -1,42 +1,16 @@
-import IdeFile from './ide-file';
+import {IdeFile} from './ide-file';
+import {fileExt} from './file-codecs';
+import {LangServer} from './lang-serv';
 
-let _encode = function (str, bufView) {
-        for (let i = 0, len = str.length; i < len; ++i) {
-            bufView[i] = str.charCodeAt(i);
-        }
-    },
-    _encode8 = function (str) {
-        let buf = new ArrayBuffer(str.length);
-        _encode(str, new Uint8Array(buf));
-        return buf;
-    },
-    _encode16 = function (str) {
-        let buf = new ArrayBuffer(str.length);
-        _encode(str, new Uint16Array(buf));
-        return buf;
-    },
-    _encode32 = function (str) {
-        let buf = new ArrayBuffer(str.length);
-        _encode(str, new Uint32Array(buf));
-        return buf;
-    },
-    _decode = function (bufView) {
-        let strBuf = [];
-        for (let i = 0, len = bufView.length; i < len; ++i) {
-            strBuf.push(String.fromCharCode(bufView[i]));
-        }
-        return strBuf.join('');
-    },
-    _decode8 = function (buf) { return _decode(new Uint8Array(buf)); },
-    _decode16 = function (buf) { return _decode(new Uint16Array(buf)); },
-    _decode32 = function (buf) { return _decode(new Uint32Array(buf)); };
-
-export class IdeCore {
+class IdeCore {
     constructor () {
         this.file = new IdeFile();
+        this.langs = {};
         this._initNodes();
+        this._loadCallback = function (str) {};
     }
     _initNodes () {
+        let self = this;
         this._node = {
             openFile: document.createElement('input'),
             saveFile: document.createElement('a')
@@ -49,26 +23,70 @@ export class IdeCore {
             let files = e.target.files;
             for (let i = 0, len = files.length; i < len; ++i) {
                 let file = files[i],
+                    ideFile = new IdeFile(file),
                     reader = new FileReader();
+                if (ideFile.type == '') {
+                    let lang = this._getLang(ideFile);
+                    ideFile.type = lang.type;
+                }
                 reader.addEventListener('load', e => {
+                    let content = self._load(e.target.result, ideFile);
+                    ideFile.content = content;
+                    self._loadCallback(content);
+                    console.log(ideFile.type);
                 });
                 reader.addEventListener('error', e => {
                     alert(`Unable load ${file.name}`);
                 });
+                self.file = ideFile;
                 reader.readAsArrayBuffer(file);
             }
         });
     }
+    _getType (file) {
+        let type = file && file.type || '',
+            ext = fileExt(file.name);
+        if (type.length < 1) {
+            for (let lang in this.langs) {
+                if (lang.isAccept(ext)) {
+                    return lang.type;
+                }
+            }
+        }
+        return type || 'plain/text';
+    }
+    _getLang (file) {
+        let type = this._getType(file);
+        return this.langs[type] || new LangServer();
+    }
+    _load (buf, file) {
+        let lang = this._getLang(file);
+        return lang.loadFile(buf);
+    }
+    _save (str, file) {
+        let lang = this._getLang(file);
+        return lang.saveFile(str);
+    }
+    registerLoadCallback (callback) {
+        this._loadCallback = callback;
+    }
+    registerLangServer (lang) {
+        if (lang instanceof LangServer) {
+            this,langs[lang.type] = lang;
+        }
+    }
     fileNew () {
         this.file = new IdeFile();
     }
-    fileOpen (file) {
-        this.file = new IdeFile();
+    fileOpen () {
+        this._node.openFile.click();
     }
-    fileSave (ideFile) {
-        let data = btoa(_encode8(this.file.content));
+    fileSave () {
+        let data = this._save(this.file.content, this.file);
         this._node.saveFile.setAttribute('href', `data:${this.file.type};base64,${data}`);
         this._node.saveFile.setAttribute('download', this.file.name);
         this._node.saveFile.click();
     }
 }
+
+export default IdeCore;

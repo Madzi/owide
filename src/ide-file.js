@@ -1,5 +1,5 @@
 export class IdeFile {
-    constructor (o) {
+    constructor (o = {}) {
         this.name = o.name || 'noname.txt';
         this.type = o.type || 'plain/text';
         this.size = o.size || 0;
