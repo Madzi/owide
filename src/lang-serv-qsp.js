@@ -1,5 +1,6 @@
 import LangServer from './lang-serv';
 import {encode16, decode16} from './file-codecs';
+import PlainParser from './plain-parser';
 
 const FILE_HEADER = 'QSPGAME';
 
@@ -52,9 +53,35 @@ export class LangServerQsp extends LangServer {
         } else {
             alert('Wrong file. Unable decode');
         }
-        return tmp.join('\n');
+        return tmp.join( '\n');
+    }
+    _saveAst(ast) {
+        let buf = [];
+        let pwd = prompt('Password?', '');
+        if (pwd) {
+            buf.push(`${GAME_HEADER}`);
+            buf.push(lineEnc(ast.editor));
+            buf.push(lineEnc(psw));
+            buf.push(lineEnc('' + ast.locations.length));
+            ast.locations.forEach(loc => this._saveLocation(buf, loc));
+            return buf.join('\r\n');
+        }
+        return '';
+    }
+    _saveLocation(buf, loc) {
+        buf.push(lineEnc(loc.name));
+        buf.push(lineEnc(loc.desc));
+        buf.push(lineEnc(loc.code));
+        buf.push(lineEnc('' + loc.actions.length));
+        loc.actions.forEach(act => this._saveAction(buf, act));
+    }
+    _saveAction(buf, act) {
+        buf.push(lineEnc(act.icon));
+        buf.push(lineEnc(act.name));
+        buf.push(lineEnc(act.code));
     }
     saveFile (str) {
-        return encode16(str);
+        let parser = new PlainParser();
+        return encode16(ast && this._saveAst(parser.parse(str)) || '');
     }
 }
