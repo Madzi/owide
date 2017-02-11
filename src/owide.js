@@ -1,20 +1,27 @@
 import IdeCore from './ide-core';
+import {LangServer, LangServerOberon07} from './lang-serv';
 import CodeMirror from 'codemirror';
+import __1 from 'codemirror/addon/edit/closebrackets';
+import __2 from 'codemirror/addon/fold/brace-fold';
+import __3 from 'codemirror/addon/fold/comment-fold';
+import __4 from 'codemirror/addon/fold/foldcode';
+import __5 from 'codemirror/addon/fold/foldgutter';
+import __6 from 'codemirror/addon/fold/indent-fold';
+import __7 from 'codemirror/addon/hint/show-hint';
+import __8 from 'codemirror/addon/hint/anyword-hint';
+import __9 from 'codemirror/addon/lint/lint';
+import __A from 'codemirror/addon/lint/json-lint';
 
-const CSS = {
-        KEYWORD: 'keyword', ATOM: 'atom', NUMBER: 'number', DEF: 'def', VARIABLE: 'variable', VARIABLE_2: 'variable-2',
-        PROPERTY: 'property', OPERATOR: 'operator', COMMENT: 'comment', STRING: 'string', STRING_2: 'string-2', META: 'meta',
-        ERROR: 'error', QUALIFIER: 'qualifier', BUILTIN: 'builtin', BRACKET: 'bracket', TAG: 'tag', ATTRIBUTE: 'attribute',
-        HEADER: 'header', QUOTE: 'quote', HR: 'hr', LINK: 'link'
-    };
-
-const ED = {
-        DEF: CSS.DEF, TYPE: CSS.ATOM, CHAR: CSS.STRING_2, SYSTEM: CSS.META, IDENT: CSS.VARIABLE, ERROR: CSS.ERROR, STRING: CSS.STRING,
-        COMMENT: CSS.COMMENT, BRACKET: CSS.BRACKET, KEYWORD: CSS.KEYWORD, OPERATOR: CSS.OPERATOR, QUALIFIER: CSS.QUALIFIER
-};
+// tokens: 
+//      keyword,        atom,           number,         def,
+//      variable,       variable-2,     property,       operator,
+//      comment,        string,         string-2,       meta,
+//      error,          qualifier,      bultin,         bracket,
+//      tag,            attribute,      header,         quote,
+//      hr,             link
 
 const OBJ = { KEYWORD: 'keyword', PREDEFINED: 'predefined', SYSTEM: 'system' };
-
+/*
 CodeMirror.defineMode("oberon07", function () {
 
 var OBERON = (function () {
@@ -39,47 +46,47 @@ var OBERON = (function () {
         };
     let _words = {};
     'ABS ASR ASSERT CHR COPY DEC EXCL FLOOR FLT INC INCL LEN LSL LOGN NEW ODD ORD PACK ROR SHORT UNPK'.split(' ').forEach(w => {
-            _words[w] = genToken(_symbols.IDENT, OBJ.PREDEFINED, w, ED.DEF);
+            _words[w] = genToken(_symbols.IDENT, OBJ.PREDEFINED, w, 'def');
         });
     'BOOLEAN CHAR INTEGER LONGREAL REAL SET'.split(' ').forEach(w => {
-            _words[w] = genToken(_symbols.IDENT, OBJ.PREDEFINED, w, ED.TYPE);
+            _words[w] = genToken(_symbols.IDENT, OBJ.PREDEFINED, w, 'type');
         });
     'ADR SIZE BIT GET PUT'.split(' ').forEach(w => {
-            _words[w] = genToken(_symbols.IDENT, OBJ.SYSTEM, w, ED.SYSTEM);
+            _words[w] = genToken(_symbols.IDENT, OBJ.SYSTEM, w, 'atom');
         });
-    _words['ARRAY'] = genToken(_symbols.ARRAY, OBJ.KEYWORD, 'ARRAY', ED.KEYWORD);
-    _words['BEGIN'] = genToken(_symbols.BEGIN, OBJ.KEYWORD, 'BEGIN', ED.KEYWORD);
-    _words['BY'] = genToken(_symbols.BY, OBJ.KEYWORD, 'BY', ED.KEYWORD);
-    _words['CASE'] = genToken(_symbols.CASE, OBJ.KEYWORD, 'CASE', ED.KEYWORD);
-    _words['CONST'] = genToken(_symbols.CONST, OBJ.KEYWORD, 'CONST', ED.KEYWORD);
-    _words['DIV'] = genToken(_symbols.DIV, OBJ.KEYWORD, 'DIV', ED.KEYWORD);
-    _words['DO'] = genToken(_symbols.DO, OBJ.KEYWORD, 'DO', ED.KEYWORD);
-    _words['ELSE'] = genToken(_symbols.ELSE, OBJ.KEYWORD, 'ELSE', ED.KEYWORD);
-    _words['ELSIF'] = genToken(_symbols.ELSIF, OBJ.KEYWORD, 'ELSIF', ED.KEYWORD);
-    _words['END'] = genToken(_symbols.END, OBJ.KEYWORD, 'END', ED.KEYWORD);
-    _words['FALSE'] = genToken(_symbols.FALSE, OBJ.KEYWORD, 'FALSE', ED.KEYWORD);
-    _words['FOR'] = genToken(_symbols.FOR, OBJ.KEYWORD, 'FOR', ED.KEYWORD);
-    _words['IF'] = genToken(_symbols.IF, OBJ.KEYWORD, 'IF', ED.KEYWORD);
-    _words['IMPORT'] = genToken(_symbols.IMPORT, OBJ.KEYWORD, 'IMPORT', ED.KEYWORD);
-    _words['IN'] = genToken(_symbols.IN, OBJ.KEYWORD, 'IN', ED.KEYWORD);
-    _words['IS'] = genToken(_symbols.IS, OBJ.KEYWORD, 'IS', ED.KEYWORD);
-    _words['MOD'] = genToken(_symbols.MOD, OBJ.KEYWORD, 'MOD', ED.KEYWORD);
-    _words['MODULE'] = genToken(_symbols.MODULE, OBJ.KEYWORD, 'MODULE', ED.KEYWORD);
-    _words['NIL'] = genToken(_symbols.NIL, OBJ.KEYWORD, 'NIL', ED.KEYWORD);
-    _words['OF'] = genToken(_symbols.OF, OBJ.KEYWORD, 'OF', ED.KEYWORD);
-    _words['OR'] = genToken(_symbols.OR, OBJ.KEYWORD, 'OR', ED.KEYWORD);
-    _words['POINTER'] = genToken(_symbols.POINTER, OBJ.KEYWORD, 'POINTER', ED.KEYWORD);
-    _words['PROCEDURE'] = genToken(_symbols.PROCEDURE, OBJ.KEYWORD, 'PROCEDURE', ED.KEYWORD);
-    _words['RECORD'] = genToken(_symbols.RECORD, OBJ.KEYWORD, 'RECORD', ED.KEYWORD);
-    _words['REPEAT'] = genToken(_symbols.REPEAT, OBJ.KEYWORD, 'REPEAT', ED.KEYWORD);
-    _words['RETURN'] = genToken(_symbols.RETURN, OBJ.KEYWORD, 'RETURN', ED.KEYWORD);
-    _words['THEN'] = genToken(_symbols.THEN, OBJ.KEYWORD, 'THEN', ED.KEYWORD);
-    _words['TO'] = genToken(_symbols.TO, OBJ.KEYWORD, 'TO', ED.KEYWORD);
-    _words['TRUE'] = genToken(_symbols.TRUE, OBJ.KEYWORD, 'TRUE', ED.KEYWORD);
-    _words['TYPE'] = genToken(_symbols.TYPE, OBJ.KEYWORD, 'TYPE', ED.KEYWORD);
-    _words['UNTIL'] = genToken(_symbols.UNTIL, OBJ.KEYWORD, 'UNIL', ED.KEYWORD);
-    _words['VAR'] = genToken(_symbols.VAR, OBJ.KEYWORD, 'VAR', ED.KEYWORD);
-    _words['WHILE'] = genToken(_symbols.WHILE, OBJ.KEYWORD, 'WHILE', ED.KEYWORD);
+    _words['ARRAY'] = genToken(_symbols.ARRAY, OBJ.KEYWORD, 'ARRAY', 'keyword');
+    _words['BEGIN'] = genToken(_symbols.BEGIN, OBJ.KEYWORD, 'BEGIN', 'keyword');
+    _words['BY'] = genToken(_symbols.BY, OBJ.KEYWORD, 'BY', 'keyword');
+    _words['CASE'] = genToken(_symbols.CASE, OBJ.KEYWORD, 'CASE', 'keyword');
+    _words['CONST'] = genToken(_symbols.CONST, OBJ.KEYWORD, 'CONST', 'keyword');
+    _words['DIV'] = genToken(_symbols.DIV, OBJ.KEYWORD, 'DIV', 'keyword');
+    _words['DO'] = genToken(_symbols.DO, OBJ.KEYWORD, 'DO', 'keyword');
+    _words['ELSE'] = genToken(_symbols.ELSE, OBJ.KEYWORD, 'ELSE', 'keyword');
+    _words['ELSIF'] = genToken(_symbols.ELSIF, OBJ.KEYWORD, 'ELSIF', 'keyword');
+    _words['END'] = genToken(_symbols.END, OBJ.KEYWORD, 'END', 'keyword');
+    _words['FALSE'] = genToken(_symbols.FALSE, OBJ.KEYWORD, 'FALSE', 'keyword');
+    _words['FOR'] = genToken(_symbols.FOR, OBJ.KEYWORD, 'FOR', 'keyword');
+    _words['IF'] = genToken(_symbols.IF, OBJ.KEYWORD, 'IF', 'keyword');
+    _words['IMPORT'] = genToken(_symbols.IMPORT, OBJ.KEYWORD, 'IMPORT', 'keyword');
+    _words['IN'] = genToken(_symbols.IN, OBJ.KEYWORD, 'IN', 'keyword');
+    _words['IS'] = genToken(_symbols.IS, OBJ.KEYWORD, 'IS', 'keyword');
+    _words['MOD'] = genToken(_symbols.MOD, OBJ.KEYWORD, 'MOD', 'keyword');
+    _words['MODULE'] = genToken(_symbols.MODULE, OBJ.KEYWORD, 'MODULE', 'keyword');
+    _words['NIL'] = genToken(_symbols.NIL, OBJ.KEYWORD, 'NIL', 'keyword');
+    _words['OF'] = genToken(_symbols.OF, OBJ.KEYWORD, 'OF', 'keyword');
+    _words['OR'] = genToken(_symbols.OR, OBJ.KEYWORD, 'OR', 'keyword');
+    _words['POINTER'] = genToken(_symbols.POINTER, OBJ.KEYWORD, 'POINTER', 'keyword');
+    _words['PROCEDURE'] = genToken(_symbols.PROCEDURE, OBJ.KEYWORD, 'PROCEDURE', 'keyword');
+    _words['RECORD'] = genToken(_symbols.RECORD, OBJ.KEYWORD, 'RECORD', 'keyword');
+    _words['REPEAT'] = genToken(_symbols.REPEAT, OBJ.KEYWORD, 'REPEAT', 'keyword');
+    _words['RETURN'] = genToken(_symbols.RETURN, OBJ.KEYWORD, 'RETURN', 'keyword');
+    _words['THEN'] = genToken(_symbols.THEN, OBJ.KEYWORD, 'THEN', 'keyword');
+    _words['TO'] = genToken(_symbols.TO, OBJ.KEYWORD, 'TO', 'keyword');
+    _words['TRUE'] = genToken(_symbols.TRUE, OBJ.KEYWORD, 'TRUE', 'keyword');
+    _words['TYPE'] = genToken(_symbols.TYPE, OBJ.KEYWORD, 'TYPE', 'keyword');
+    _words['UNTIL'] = genToken(_symbols.UNTIL, OBJ.KEYWORD, 'UNIL', 'keyword');
+    _words['VAR'] = genToken(_symbols.VAR, OBJ.KEYWORD, 'VAR', 'keyword');
+    _words['WHILE'] = genToken(_symbols.WHILE, OBJ.KEYWORD, 'WHILE', 'keyword');
 
     return { Symbol: _symbols, Words: _words };
 })(),
@@ -93,24 +100,12 @@ var OBERON = (function () {
             return /[0-9a-zA-Z_]/.test(ch);
         },
 
-        _startState = function () {
-            return {
-                stack: [],
-                state: null,
-                ch: null,
-                scope: 0,
-                level: 0,
-                error: null,
-                name: null,
-            };
-        },
-
         _token = function (stream, state) {
             var _state = state.state,
 
                 _ident = function (sym) {
                     var _word,
-                        _token = ED.IDENT,
+                        _token = 'variable',
                         _str = sym,
                         _ch = stream.next();
 
@@ -124,7 +119,7 @@ var OBERON = (function () {
 
                     state.name = _str;
                     if (_ch === '.' || _ch === '[') {
-                        _token = ED.QUALIFIER;
+                        _token = 'variable qualifier';
                     }
 
                     _word = OBERON.Words[_str];
@@ -162,10 +157,10 @@ var OBERON = (function () {
                     }
                     if (stream.eol() && _ch != sym) {
                         state.error = 'string.not.close';
-                        return ED.ERROR;
+                        return 'string error';
                     }
                     state.name = _str;
-                    return ED.STRING;
+                    return 'string';
                 },
 
                 _comment = function () {
@@ -196,8 +191,12 @@ var OBERON = (function () {
                             default:
                                 mode = '?';
                         }
+                        if (mode !== ')') {
+                            state.error = 'unclosed.comment';
+                            return 'comment error';
+                        }
                     }
-                    return ED.COMMENT;
+                    return 'comment';
                 },
 
                 _ch = stream.next();
@@ -220,21 +219,21 @@ var OBERON = (function () {
                 case '{':
                 case '}':
                 case ')':
-                    return ED.BRACKET;
+                    return 'bracket';
 
                 case '(':
                     if (stream.peek() === '*') {
                         state.level += 1;
                         return _comment();
                     }
-                    return ED.BRACKET;
+                    return 'bracket';
 
                 case ':':
                     if (stream.peek() === '=') {
                         _ch = stream.next();
-                        return ED.KEYWORD;
+                        return 'keyword';
                     }
-                    return ED.OPERATOR;
+                    return 'operator';
 
                 case '<':
                 case '>':
@@ -250,39 +249,68 @@ var OBERON = (function () {
                 case '^':
                 case ',':
                 case ';':
-                    return ED.OPERATOR;
+                    return 'operator';
             }
 
             return null;
         };
 
     return {
-        startState: _startState,
+        startState: function () {
+            return {
+                indent: 0,
+                stack: [],
+                state: null,
+                ch: null,
+                scope: 'rtl',
+                level: 0,
+                error: null,
+                name: null,
+            };
+        },
+
         token: _token,
         indent: (state, textAfter) => {
             let words = textAfter.split(' ');
-            if (words[0] === 'END' && stage.scope > 0) {
-                stage.scope--;
+            if (words[0] === 'END' && state.indent > 0) {
+                state.indent--;
             }
-            return stage.scope;
+            return state.indent;
         }
     };
 
 });
+*/
 
-CodeMirror.defineMIME("text/x-oberon07", "oberon07");
 
-
-class LanguegeServerO7 {
-    constructor () {}
-}
+let oberonLang = new LangServerOberon07();
+oberonLang.register(CodeMirror);
 
 let ideCore = new IdeCore();
 let codeArea = document.querySelector('#code-area');
 let codeEditor = CodeMirror.fromTextArea(codeArea, {
+        value: ['one twom three'],
         lineNumbers: true,
+        autoCloseBrackets: true,
+        foldGutter: true,
+        gutters: ['breakpoints', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+        extraKeys: {'Ctrl-Space': 'autocomplete'},
         mode: 'text/x-oberon07'
     });
+
+codeEditor.foldCode(CodeMirror.Pos(0, 0));
+
+let makeMarker = function () {
+  var marker = document.createElement("div");
+  marker.style.color = "#822";
+  marker.innerHTML = "●";
+  return marker;
+}
+
+codeEditor.on("gutterClick", (cm, n) => {
+    var info = cm.lineInfo(n);
+    cm.setGutterMarker(n, "breakpoints", info.gutterMarkers ? null : makeMarker());
+});
 
 /* Add events to menu */
 document.querySelector('#menu-item-new').addEventListener('click', e => {
