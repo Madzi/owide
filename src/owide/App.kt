@@ -16,6 +16,9 @@ fun main (args: Array<String>) {
 
     config(RConf(Paths("lib/vs")))
     require(arrayOf("vs/editor/editor.main")) {
-        val editor = monaco.editor.create(document.getElementById("container"), FileView("function x() {\n}\n", "javascript"))
+        val editor = monaco.editor.create(
+                document.getElementById("container"),
+                FileView("function x() {\n}\n", "javascript")
+        )
     }
 }
