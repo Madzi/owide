@@ -13,6 +13,16 @@ external class Uint8Array(ab: ArrayBuffer) {}
 
 data class FileDTO(val name: String, val size: Int, val type: String, val raw: ArrayBuffer)
 
+external object FileUtils {
+    fun encode8(content: String): ArrayBuffer
+    fun decode8(buffer: ArrayBuffer): String
+    fun encode16(content: String): ArrayBuffer
+    fun decode16(buffer: ArrayBuffer): String
+    fun encode32(content: String): ArrayBuffer
+    fun decode32(buffer: ArrayBuffer): String
+    fun toBase64(buffer: ArrayBuffer): String
+}
+
 object FileSystem {
 
     private val body: HTMLElement = document.querySelector("body") as HTMLElement
@@ -46,6 +56,7 @@ object FileSystem {
             val reader = FileReader()
             reader.onload = {
                 ev ->
+                println("file.type :: ${file.type}")
                 callback(FileDTO(file.name, file.size, file.type, ev.target.asDynamic().result))
             }
             reader.readAsArrayBuffer(file)
@@ -54,7 +65,7 @@ object FileSystem {
     }
 
     fun save(fileDTO: FileDTO) {
-        val base64 = toBase64(fileDTO.raw)
+        val base64 = FileUtils.toBase64(fileDTO.raw)
         fileOutput.apply {
             download = fileDTO.name
             href = "data:${fileDTO.type};base64,$base64"
@@ -64,15 +75,6 @@ object FileSystem {
     fun extension(fileName: String): String {
         val parts = fileName.split(".");
         return if (parts.size > 1) parts.last() else ""
-    }
-
-    fun toBase64(raw: ArrayBuffer): String {
-        val byteArray = Uint8Array(ArrayBuffer())
-        return "" //TODO: need implement
-    }
-
-    fun fromBase64(text: String): ArrayBuffer {
-        return ArrayBuffer() //TODO: need implement
     }
 
 }

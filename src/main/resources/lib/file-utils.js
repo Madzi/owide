@@ -37,6 +37,9 @@
                 let buf = new ArrayBuffer(str.length * 4);
                 _encode(str, new Uint32Array(buf));
                 return buf;
+            },
+            toBase64 = function (arrayBuffer) {
+                return btoa(String.fromCharCode.apply(null, new Uint8Array(arrayBuffer)));
             };
 
         return {
@@ -45,7 +48,8 @@
             encode16: encode16,
             decode16: decode16,
             encode32: encode32,
-            decode32: decode32
+            decode32: decode32,
+            toBase64: toBase64
         };
     })();
 
