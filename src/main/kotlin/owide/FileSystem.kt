@@ -11,13 +11,14 @@ import kotlin.browser.document
 external class ArrayBuffer {}
 external class Uint8Array(ab: ArrayBuffer) {}
 
-object FIleUtils {
-/*
+data class FileDTO(val name: String, val size: Int, val type: String, val raw: ArrayBuffer)
+
+object FileSystem {
+
     private val body: HTMLElement = document.querySelector("body") as HTMLElement
 
     private val fileInput = buildInput()
     private val fileOutput = buildOutput()
-    private var callback: ((String, ArrayBuffer) -> Unit)? = null
 
     private fun buildInput(): HTMLInputElement {
         val fileInput = document.createElement("input") as HTMLInputElement
@@ -35,49 +36,45 @@ object FIleUtils {
             style.display = "none"
         }
         body.appendChild(fileOutput)
-        fileOutput.onchange = {
-            event ->
-            val file = fileInput.files!![0] as File
-            val reader = FileReader()
-            val clb = callback
-            reader.onload = {
-                ev ->
-                if (clb != null) {
-                    clb.invoke(file.name, ev.target.asDynamic().result)
-                }
-            }
-            reader.readAsArrayBuffer(file)
-        }
         return fileOutput
     }
 
-    fun load(fn: (String, ArrayBuffer) -> Unit) {
-        callback = fn;
+    fun load(callback: (fileDTO: FileDTO) -> Unit) {
+        fileInput.onchange = {
+            event ->
+            val file = fileInput.files!![0] as File
+            val reader = FileReader()
+            reader.onload = {
+                ev ->
+                callback(FileDTO(file.name, file.size, file.type, ev.target.asDynamic().result))
+            }
+            reader.readAsArrayBuffer(file)
+        }
         fileInput.click()
     }
 
-    fun save(fileName: String, content: ArrayBuffer) {
-        val base64 = toBase64(content)
+    fun save(fileDTO: FileDTO) {
+        val base64 = toBase64(fileDTO.raw)
         fileOutput.apply {
-            download = fileName
-            href = "data:text/plain;base64,$base64"
+            download = fileDTO.name
+            href = "data:${fileDTO.type};base64,$base64"
         }
         fileOutput.click();
     }
-
     fun extension(fileName: String): String {
         val parts = fileName.split(".");
         return if (parts.size > 1) parts.last() else ""
     }
 
     fun toBase64(raw: ArrayBuffer): String {
+        val byteArray = Uint8Array(ArrayBuffer())
         return "" //TODO: need implement
     }
 
     fun fromBase64(text: String): ArrayBuffer {
         return ArrayBuffer() //TODO: need implement
     }
-*/
+
 }
 /*
 fun String.decrypt(): String = this.map { ch -> ch - 5 }.toString()
