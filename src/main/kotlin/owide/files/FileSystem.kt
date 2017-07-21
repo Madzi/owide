@@ -1,4 +1,4 @@
-package owide
+package owide.files
 
 import org.w3c.dom.HTMLAnchorElement
 import org.w3c.dom.HTMLElement
@@ -11,19 +11,9 @@ import kotlin.browser.document
 external class ArrayBuffer {}
 external class Uint8Array(ab: ArrayBuffer) {}
 
-data class FileDTO(val name: String, val size: Int, val type: String, val raw: ArrayBuffer)
-
-external object FileUtils {
-    fun encode8(content: String): ArrayBuffer
-    fun decode8(buffer: ArrayBuffer): String
-    fun encode16(content: String): ArrayBuffer
-    fun decode16(buffer: ArrayBuffer): String
-    fun encode32(content: String): ArrayBuffer
-    fun decode32(buffer: ArrayBuffer): String
-    fun toBase64(buffer: ArrayBuffer): String
-}
-
 object FileSystem {
+
+    private var fid = 1;
 
     private val body: HTMLElement = document.querySelector("body") as HTMLElement
 
@@ -49,32 +39,40 @@ object FileSystem {
         return fileOutput
     }
 
-    fun load(callback: (fileDTO: FileDTO) -> Unit) {
+    fun newFile(): SimpleFile {
+        return SimpleFile("Noname ${fid++}", "plain/text", "")
+    }
+
+    fun loadFile(callback: (simpleFile: SimpleFile) -> Unit) {
         fileInput.onchange = {
             event ->
             val file = fileInput.files!![0] as File
             val reader = FileReader()
             reader.onload = {
                 ev ->
-                println("file.type :: ${file.type}")
-                callback(FileDTO(file.name, file.size, file.type, ev.target.asDynamic().result))
+                val simpleFile = SimpleFile(file.name, detectMime(file), "")
+                println("file.type :: ${file.type}, mime :: ${simpleFile.mime}")
+                simpleFile.fromRaw(ev.target.asDynamic().result)
+                callback(simpleFile)
             }
             reader.readAsArrayBuffer(file)
         }
         fileInput.click()
     }
 
-    fun save(fileDTO: FileDTO) {
-        val base64 = FileUtils.toBase64(fileDTO.raw)
+    fun saveFile(simpleFile: SimpleFile) {
         fileOutput.apply {
-            download = fileDTO.name
-            href = "data:${fileDTO.type};base64,$base64"
+            download = simpleFile.name
+            href = simpleFile.asLink()
         }
         fileOutput.click();
     }
     fun extension(fileName: String): String {
         val parts = fileName.split(".");
         return if (parts.size > 1) parts.last() else ""
+    }
+    fun detectMime(file: File): String {
+        return "plain/text"
     }
 
 }

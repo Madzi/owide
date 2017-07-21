@@ -4,6 +4,7 @@ import monaco.Editor
 import monaco.editor.IEditor
 import monaco.editor.IModel
 import org.w3c.dom.HTMLAnchorElement
+import owide.files.*
 import kotlin.browser.document
 
 data class Paths(val vs: String)
@@ -23,7 +24,7 @@ fun main (args: Array<String>) {
     config(RConf(Paths("lib/vs")))
     require(arrayOf("vs/editor/editor.main")) {
         var openCounter = 1;
-        val openFiles = hashMapOf<IModel, FileDTO>()
+        val openFiles = hashMapOf<IModel, SimpleFile>()
         val monacoEditor = monaco["editor"] as Editor
         val editor: IEditor = monaco.editor.create(
                 document.getElementById("container"),
@@ -36,23 +37,23 @@ fun main (args: Array<String>) {
 
         navNew.onclick = {
             val model = monacoEditor.createModel("", defLanguage)
-            openFiles.put(model, FileDTO("noname${openCounter++}", 0, "plain/text", ArrayBuffer()))
+            openFiles.put(model, FileSystem.newFile())
             editor.setModel(model)
         }
         navOpen.onclick = {
-            FileSystem.load() {
+            FileSystem.loadFile() {
                 fileDTO ->
-                println("TYPE: ${fileDTO.type}")
-                val model = monacoEditor.createModel(FileUtils.decode8(fileDTO.raw), defLanguage)
+                println("TYPE: ${fileDTO.mime}")
+                val model = monacoEditor.createModel(fileDTO.value, TypeResolver.language(fileDTO))
                 openFiles.put(model, fileDTO)
                 editor.setModel(model)
             }
         }
         navSave.onclick = {
             val model = editor.getModel();
-            val oldDTO = openFiles.get(model)!!
-            val newDTO = FileDTO(oldDTO.name, 0, oldDTO.type, FileUtils.encode16(model.getValue()))
-            FileSystem.save(newDTO)
+            val file = openFiles.get(model)!!
+            file.value = model.getValue()
+            FileSystem.saveFile(file)
         }
     }
 
