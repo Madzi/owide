@@ -55,8 +55,4 @@ fun main (args: Array<String>) {
         }
     }
 
-    // TODO: 0. Need repair save method
-    // TODO: 1. Need parse type (mime) to be able define model language
-    // TODO: 2. Need keep this information and use it
-
 }

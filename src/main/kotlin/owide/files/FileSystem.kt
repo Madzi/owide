@@ -76,7 +76,3 @@ object FileSystem {
     }
 
 }
-/*
-fun String.decrypt(): String = this.map { ch -> ch - 5 }.toString()
-fun String.encrypt(): String = this.map { ch -> ch + 5 }.toString()
-*/
