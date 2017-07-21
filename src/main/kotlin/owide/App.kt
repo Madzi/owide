@@ -23,8 +23,7 @@ fun main (args: Array<String>) {
 
     config(RConf(Paths("lib/vs")))
     require(arrayOf("vs/editor/editor.main")) {
-        var openCounter = 1;
-        val openFiles = hashMapOf<IModel, SimpleFile>()
+        var openFile = FileSystem.newFile()
         val monacoEditor = monaco["editor"] as Editor
         val editor: IEditor = monaco.editor.create(
                 document.getElementById("container"),
@@ -36,24 +35,23 @@ fun main (args: Array<String>) {
         val navSave = document.querySelector("#nav-save") as HTMLAnchorElement
 
         navNew.onclick = {
-            val model = monacoEditor.createModel("", defLanguage)
-            openFiles.put(model, FileSystem.newFile())
+            openFile = FileSystem.newFile()
+            val model = monacoEditor.createModel(openFile.value, defLanguage)
             editor.setModel(model)
         }
         navOpen.onclick = {
             FileSystem.loadFile() {
-                fileDTO ->
-                println("TYPE: ${fileDTO.mime}")
-                val model = monacoEditor.createModel(fileDTO.value, TypeResolver.language(fileDTO))
-                openFiles.put(model, fileDTO)
+                file ->
+                openFile = file
+                println("TYPE: ${openFile.mime}")
+                val model = monacoEditor.createModel(openFile.value, TypeResolver.language(openFile))
                 editor.setModel(model)
             }
         }
         navSave.onclick = {
             val model = editor.getModel();
-            val file = openFiles.get(model)!!
-            file.value = model.getValue()
-            FileSystem.saveFile(file)
+            openFile.value = model.getValue()
+            FileSystem.saveFile(openFile)
         }
     }
 
