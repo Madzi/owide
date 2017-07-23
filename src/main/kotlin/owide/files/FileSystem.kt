@@ -50,10 +50,14 @@ object FileSystem {
             val reader = FileReader()
             reader.onload = {
                 ev ->
-                val simpleFile = SimpleFile(file.name, detectMime(file), "")
-                println("file.type :: ${file.type}, mime :: ${simpleFile.mime}")
-                simpleFile.fromRaw(ev.target.asDynamic().result)
-                callback(simpleFile)
+                val mime = detectMime(file)
+                val ideFile = when (mime) {
+                    "application/x-qsp" -> QspFile(file.name, "")
+                    else -> SimpleFile(file.name, mime, "")
+                }
+                println("file.type :: ${file.type}, mime :: ${ideFile.mime}")
+                ideFile.fromRaw(ev.target.asDynamic().result)
+                callback(ideFile)
             }
             reader.readAsArrayBuffer(file)
         }
@@ -72,7 +76,19 @@ object FileSystem {
         return if (parts.size > 1) parts.last() else ""
     }
     fun detectMime(file: File): String {
-        return "plain/text"
+        if (file.type.isNotEmpty()) {
+            return file.type
+        }
+        val ext = extension(file.name)
+        println(ext)
+        return when(ext) {
+            "bat" -> "application/x-bat"
+            "jar" -> "archive/jar"
+            "java" -> "application/x-java"
+            "md" -> "application/x-markdown"
+            "qsp" -> "application/x-qsp"
+            else -> "plain/text"
+        }
     }
 
 }
