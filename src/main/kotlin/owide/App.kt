@@ -5,6 +5,9 @@ import monaco.editor.IEditor
 import monaco.editor.IModel
 import org.w3c.dom.HTMLAnchorElement
 import owide.files.*
+import owide.loader.qsp.Action
+import owide.loader.qsp.Game
+import owide.loader.qsp.Location
 import kotlin.browser.document
 
 data class Paths(val vs: String)
@@ -23,11 +26,18 @@ fun main (args: Array<String>) {
 
     config(RConf(Paths("lib/vs")))
     require(arrayOf("vs/editor/editor.main")) {
+        val game = Game()
+        val location = Location ()
+        val action = Action()
+
+        location.addAction(action)
+        game.addLocation(location)
+
         var openFile = FileSystem.newFile()
         val monacoEditor = monaco["editor"] as Editor
         val editor: IEditor = monaco.editor.create(
                 document.getElementById("container"),
-                FileView("function x() {\n}\n", "javascript")
+                FileView(game.toText(), "qsp")
         )
 
         val navNew = document.querySelector("#nav-new") as HTMLAnchorElement

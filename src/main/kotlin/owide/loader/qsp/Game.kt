@@ -11,7 +11,7 @@ class Game : Storable {
     }
 
     override fun toText(): String {
-        return "@editor ${editor}\n\n" +
+        return "@editor(${editor})\n\n" +
                 locations.map { it.toText() }.joinToString("") +
                 "\n"
     }
