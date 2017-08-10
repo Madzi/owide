@@ -6,7 +6,6 @@ object TypeResolver {
     val knownTypes = mapOf<String, String>(
             "application/x-javascript" to "javascript",
             "application/x-markdown" to "markdown",
-            "application/x-qsp" to "qsp",
             "text/css" to "css",
             "text/html" to "html",
             "text/xml" to "xml"

@@ -52,7 +52,6 @@ object FileSystem {
                 ev ->
                 val mime = detectMime(file)
                 val ideFile = when (mime) {
-                    "application/x-qsp" -> QspFile(file.name, "")
                     else -> SimpleFile(file.name, mime, "")
                 }
                 println("file.type :: ${file.type}, mime :: ${ideFile.mime}")
@@ -86,7 +85,6 @@ object FileSystem {
             "jar" -> "archive/jar"
             "java" -> "application/x-java"
             "md" -> "application/x-markdown"
-            "qsp" -> "application/x-qsp"
             else -> "plain/text"
         }
     }

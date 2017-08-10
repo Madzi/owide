@@ -1,6 +1,5 @@
 package owide
 
-import monaco.Editor
 import monaco.editor.IEditor
 import monaco.editor.IModel
 import org.w3c.dom.HTMLAnchorElement
@@ -24,7 +23,6 @@ fun main (args: Array<String>) {
     config(RConf(Paths("lib/vs")))
     require(arrayOf("vs/editor/editor.main")) {
         var openFile = FileSystem.newFile()
-        val monacoEditor = monaco["editor"] as Editor
         val editor: IEditor = monaco.editor.create(
                 document.getElementById("container"),
                 FileView("function x() {\n}\n", "javascript")
@@ -36,7 +34,7 @@ fun main (args: Array<String>) {
 
         navNew.onclick = {
             openFile = FileSystem.newFile()
-            val model = monacoEditor.createModel(openFile.value, defLanguage)
+            val model: IModel = monaco.monaco.editor.createModel(openFile.value, defLanguage)
             editor.setModel(model)
         }
         navOpen.onclick = {
@@ -44,7 +42,7 @@ fun main (args: Array<String>) {
                 file ->
                 openFile = file
                 println("TYPE: ${openFile.mime}")
-                val model = monacoEditor.createModel(openFile.value, TypeResolver.language(openFile))
+                val model: IModel = monaco.monaco.editor.createModel(openFile.value, TypeResolver.language(openFile))
                 editor.setModel(model)
             }
         }
